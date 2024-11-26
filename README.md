@@ -31,7 +31,7 @@ Avant de commencer, assurez-vous d'avoir les éléments suivants installés sur 
 
    ```bash
    git clone https://github.com/Razziat/crypto_dexscreener_analysis.git
-   cd votre-repo
+   cd crypto_dexscreener_analysis
 
     Installer les dépendances Python :
 
@@ -89,7 +89,7 @@ Ce script permet de récupérer en temps réel les derniers tokens listés sur D
 
     Lancer l'application DexScreener sur votre téléphone connecté.
 
-    Sélectionner le Filtre "New Newest" pour afficher les tokens les plus récents.
+    Sélectionner les filtres "New" "Newest" pour afficher les tokens les plus récents.
 
     Exécuter le script :
 
@@ -107,7 +107,7 @@ Ce script interagit avec l'application DexScreener pour :
 
 Étapes :
 
-    Assurer que l'application DexScreener est ouverte sur votre téléphone avec le filtre "New Newest" sélectionné.
+    Assurer que l'application DexScreener est ouverte sur votre téléphone avec les filtres "New" "Newest" sélectionnés.
 
     Mettre à jour l'ID de l'appareil ADB dans le script dexscreenerlistener.py :
 
@@ -146,7 +146,9 @@ Résultats :
     Les résultats détaillés sont affichés dans le terminal.
     Les informations sont enregistrées dans purchase_results.json.
 
-Améliorations Futures
+Améliorations Futures:
+
+    Ajouter une stratégie d'achat efficaces en se basant sur la liquidité, marketcap, transactions effectuées...
 
     Refactorisation du Code : Séparer dexscreenerlistener.py en plusieurs fichiers pour améliorer la lisibilité et la maintenance.
 
