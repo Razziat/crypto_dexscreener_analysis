@@ -1,0 +1,11 @@
+{
+  "platformName": "Android",
+  "deviceName": "4672d93b", #Remplacer par votre numéro de device
+  "appPackage": "com.dexscreener",
+  "appActivity": "com.dexscreener.MainActivity",
+  "automationName": "UiAutomator2",
+  "ignoreHiddenApiPolicyError": true,
+  "disableWindowAnimation": true,
+  "skipUnlock": true,
+  "noReset": true
+}
