@@ -13,7 +13,7 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(
 # Set up the options
 options = UiAutomator2Options()
 options.platformName = 'Android'
-options.deviceName = '4672d93b'
+options.deviceName = '4672d93b'  # Remplacez par l'ID de votre appareil
 options.appPackage = 'com.dexscreener'
 options.appActivity = 'com.dexscreener.MainActivity'
 options.noReset = True
@@ -99,6 +99,8 @@ def extract_token_data(driver):
                 if content_desc and not any(keyword in content_desc for keyword in ["Trending", "Moonshot", "Newest"]):
                     token_data = content_desc.split(', ')
                     cleaned_data = clean_and_align_data(token_data)
+                    # Ajouter la date et l'heure actuelles
+                    cleaned_data["Analyzed Date"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
                     tokens_data.append(cleaned_data)
             except StaleElementReferenceException:
                 logging.warning("Encountered a stale element, skipping...")
@@ -114,6 +116,7 @@ def extract_token_data(driver):
 def display_token_data(token_data):
     for token in token_data:
         print(f"\nToken Name: {token['Token Name']}")
+        print(f"Analyzed Date: {token['Analyzed Date']}")
         print(f"Time: {token['Time']}")
         print(f"Price: {token['Price']}")
         print(f"Additional Value: {token['Additional Value']}")
