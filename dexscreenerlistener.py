@@ -66,7 +66,7 @@ blockchain_name_to_chain_id = {
                 'BOUNCEBIT': 'bouncebit',
                 'MOONDRIVER': 'moondriver',
                 'FILECOIN': 'filecoin',
-                # Ajoutez d'autres mappages si nécessaire
+                # Add more elements if needed
             }
 
 # Set up logging
@@ -75,7 +75,7 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(
 # Set up the options
 options = UiAutomator2Options()
 options.platformName = 'Android'
-options.deviceName = '4672d93b' #Remplacer par votre numéro de device
+options.deviceName = '4672d93b' # Replace by your device ID
 options.appPackage = 'com.dexscreener'
 options.appActivity = 'com.dexscreener.MainActivity'
 options.noReset = True
@@ -98,44 +98,61 @@ logging.info(f"Driver initialized. Time taken: {end_time - start_time:.2f} secon
 
 # Wait for the app to load
 sleep(8)
+def parse_liquidity(liquidity_str):
+    if not liquidity_str or liquidity_str in ['<', '<$1']:
+        return 0.0
+
+    liquidity_str = liquidity_str.replace('$', '').replace(',', '').strip().upper()
+    multiplier = 1
+    if 'K' in liquidity_str:
+        multiplier = 1_000
+        liquidity_str = liquidity_str.replace('K', '')
+    elif 'M' in liquidity_str:
+        multiplier = 1_000_000
+        liquidity_str = liquidity_str.replace('M', '')
+    elif 'B' in liquidity_str:
+        multiplier = 1_000_000_000
+        liquidity_str = liquidity_str.replace('B', '')
+
+    try:
+        return float(liquidity_str) * multiplier
+    except ValueError:
+        return 0.0
+
 # Function to clean and align the extracted data
 def clean_and_align_data(token_data):
-    # Initialize with default values
+    # Retirer les éléments parasites comme "?" ou vides
+    filtered_data = [d for d in token_data if d.strip() and d.strip() != "?"]
+
     cleaned_data = {
-        "Token Name": token_data[0] if len(token_data) > 0 else "N/A",
-        "Time": token_data[1] if len(token_data) > 1 else "N/A",
-        "Price": token_data[2] if len(token_data) > 2 else "N/A",
-        "Price Adjustment": "",
+        "Token Name": filtered_data[0] if len(filtered_data) > 0 else "N/A",
+        "Time": filtered_data[1] if len(filtered_data) > 1 else "N/A",
+        "Price": filtered_data[2] if len(filtered_data) > 2 else "N/A",
+        "Additional Value": "",
         "Change Indicator": "",
         "Change": "",
         "Project Name": "",
         "Liquidity": "",
         "Volume": "",
-        "Market Cap": "",
-        "Go+ Security": ""
+        "Market Cap": ""
     }
 
-    index = 3  # Start after the price
+    index = 3
 
-    # Check if there's a price adjustment (number after Price)
-    if len(token_data) > index and token_data[index].isdigit():
-        cleaned_data["Price Adjustment"] = token_data[index]
+    if len(filtered_data) > index and filtered_data[index].isdigit():
+        cleaned_data["Additional Value"] = filtered_data[index]
         index += 1
 
-    # Extract the change indicator and change
-    cleaned_data["Change Indicator"] = token_data[index] if len(token_data) > index else ""
+    cleaned_data["Change Indicator"] = filtered_data[index] if len(filtered_data) > index else ""
     index += 1
-    cleaned_data["Change"] = token_data[index] if len(token_data) > index else ""
+    cleaned_data["Change"] = filtered_data[index] if len(filtered_data) > index else ""
     index += 1
-
-    # Extract the project name
-    cleaned_data["Project Name"] = token_data[index] if len(token_data) > index else ""
+    cleaned_data["Project Name"] = filtered_data[index] if len(filtered_data) > index else ""
     index += 1
 
-    # Handle the liquidity, volume, and market cap values
-    while index < len(token_data):
-        key = token_data[index]
-        value = token_data[index + 1] if index + 1 < len(token_data) else ""
+    while index < len(filtered_data):
+        key = filtered_data[index]
+        value = filtered_data[index + 1] if index + 1 < len(filtered_data) else ""
         if key == "LIQ":
             cleaned_data["Liquidity"] = value
         elif key == "VOL":
@@ -145,7 +162,6 @@ def clean_and_align_data(token_data):
         index += 2
 
     return cleaned_data
-
 
 # Scroll function
 def scroll_down(driver):
@@ -173,24 +189,27 @@ def scroll_down_home_page(driver):
     except Exception as e:
         logging.warning(f"Error during scrolling: {e}")
 
+# Scroll up function
 def scroll_up(driver):
     try:
-        # Obtenir la taille de l'écran
+        # Get screen size
         window_size = driver.get_window_size()
         start_x = window_size["width"] // 2
-        start_y = int(window_size["height"] * 0.2)  # Commence plus bas sur l'écran
-        end_y = int(window_size["height"] * 0.8)    # Termine plus haut sur l'écran
+        start_y = int(window_size["height"] * 0.2)
+        end_y = int(window_size["height"] * 0.8)
 
         driver.swipe(start_x, start_y, start_x, end_y, 600)
     except Exception as e:
         logging.warning(f"Error during scrolling up: {e}")
 
+# Scroll to the top of the app function
 def scroll_to_top(driver):
-    max_scroll_attempts = 10  # Limiter le nombre de tentatives pour éviter une boucle infinie
+    max_scroll_attempts = 10
     for _ in range(max_scroll_attempts):
         scroll_up(driver)
-        sleep(1)  # Attendre que le défilement soit terminé
+        sleep(1)
 
+# Extract price info for a token
 def extract_price_from_detail_page(driver):
     try:
         # Locate the TextView with text "PRICE USD"
@@ -243,6 +262,11 @@ def extract_basic_token_data(driver):
                     token_data = content_desc.split(', ')
                     print(token_data)
                     cleaned_data = clean_and_align_data(token_data)
+                    # Skip tokens with liquidity < $1
+                    liquidity_value = parse_liquidity(cleaned_data.get("Liquidity", ""))
+                    if liquidity_value < 1:
+                        logging.info(f"Token '{cleaned_data['Token Name']}' skipped due to low liquidity: {liquidity_value}")
+                        continue
                     print(cleaned_data)
                     tokens_data.append((element, cleaned_data))
                     if len(tokens_data) >= 8:  # Stop after collecting 8 tokens
@@ -395,21 +419,22 @@ def extract_full_hashes_via_clipboard(driver, token_name, blockchain_name):
         logging.warning(f"Error while extracting hashes via clipboard: {e}")
         return "Error retrieving hash", "Error retrieving hash"
 
+# Get the blockchain name of a token details page
 def get_blockchain_name(driver, token_info):
     try:
-        # Obtenir tous les éléments android.view.ViewGroup avec un content-desc non vide et cliquable
+        # Obtain all the android.view.ViewGroup with a non empty content-desc and clickable
         elements = driver.find_elements(AppiumBy.XPATH, "//android.view.ViewGroup[@content-desc!='' and @clickable='true']")
         logging.info(f"Found {len(elements)} elements with non-empty content-desc and clickable.")
         blockchain_name = ""
         for element in elements:
             content_desc = element.get_attribute('content-desc')
             logging.info(f"Found element with content-desc: '{content_desc}'")
-            # Vérifier si le content_desc correspond à un nom de blockchain connu
+            # Verify if the content_desc is a known blockchain name
             if content_desc.upper() in blockchain_name_to_chain_id:
                 blockchain_name = content_desc
                 logging.info(f"Blockchain name found: '{blockchain_name}'")
                 token_info["Blockchain Name"] = blockchain_name
-                break  # Quitter la boucle une fois le nom de la blockchain trouvé
+                break
         if blockchain_name == "":
             logging.warning("Blockchain name not found among elements with content-desc.")
         return blockchain_name
@@ -509,7 +534,6 @@ def process_tokens(driver, tokens_data):
             continue
 
     return tokens_data, simulated_purchases
-
 
 try:
     # Record the start time for the extraction process

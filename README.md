@@ -1,157 +1,168 @@
+
 # DexScreener Token Listener
 
 ## Introduction
 
-Ce projet vise à automatiser la collecte d'informations sur les nouveaux tokens listés sur l'application mobile DexScreener. Il utilise Appium pour interagir avec l'application sur un appareil Android connecté, et récupère des données clé telles que les hashes des tokens sur leurs blockchains respectives, ainsi que des simulations d'achat pour analyser les performances potentielles.
+This project aims to automate the collection of information on newly listed tokens on the DexScreener mobile app. It uses Appium to interact with the app on a connected Android device and retrieves key data such as token hashes on their respective blockchains, as well as simulated purchases to analyze potential performance.
 
-## Table des Matières
+## Table of Contents
 
-1. [Prérequis](#prérequis)
+1. [Prerequisites](#prerequisites)
 2. [Installation](#installation)
-3. [Configuration de l'Environnement](#configuration-de-lenvironnement)
-4. [Utilisation](#utilisation)
-   - [Récupérer les Derniers Tokens](#1-récupérer-les-derniers-tokens)
-   - [Simuler des Achats et Récupérer les Hashes](#2-simuler-des-achats-et-récupérer-les-hashes)
-   - [Mettre à Jour les Prix des Tokens](#3-mettre-à-jour-les-prix-des-tokens)
-5. [Améliorations Futures](#améliorations-futures)
-6. [Remarques](#remarques)
+3. [Environment Setup](#environment-setup)
+4. [Usage](#usage)
+   - [Retrieve Latest Tokens](#1-retrieve-latest-tokens)
+   - [Simulate Purchases and Retrieve Hashes](#2-simulate-purchases-and-retrieve-hashes)
+   - [Update Token Prices](#3-update-token-prices)
+5. [Future Improvements](#future-improvements)
+6. [Notes](#notes)
 
-## Prérequis
+## Prerequisites
 
-Avant de commencer, assurez-vous d'avoir les éléments suivants installés sur votre système :
+Before getting started, make sure you have the following installed on your system:
 
-- **Python 3.x** : Assurez-vous que Python est installé et configuré sur votre machine.
-- **ADB (Android Debug Bridge)** : Pour communiquer avec votre appareil Android.
-- **Appium Server** : Pour automatiser les interactions avec l'application DexScreener.
-- **Appium Inspector (facultatif)** : Pour inspecter l'interface utilisateur de l'application DexScreener.
+- **Python 3.x**: Ensure Python is installed and configured on your machine.
+- **ADB (Android Debug Bridge)**: To communicate with your Android device.
+- **Appium Server**: To automate interactions with the DexScreener app.
+- **Appium Inspector (optional)**: To inspect the DexScreener app's user interface.
 
 ## Installation
 
-1. **Cloner le dépôt GitHub** :
+1. **Clone the GitHub repository**:
 
    ```bash
    git clone https://github.com/Razziat/crypto_dexscreener_analysis.git
    cd crypto_dexscreener_analysis
+   ```
 
-    Installer les dépendances Python :
+2. **Install Python dependencies**:
 
-    pip install -r requirements.txt
+   ```bash
+   pip install -r requirements.txt
+   ```
 
-    Assurez-vous que le fichier requirements.txt contient toutes les bibliothèques nécessaires, par exemple :
-        appium-python-client
-        selenium
-        requests
+   Make sure `requirements.txt` contains all necessary libraries, such as:
+   - appium-python-client
+   - selenium
+   - requests
 
-Configuration de l'Environnement
-1. Connecter votre Appareil Android
+## Environment Setup
 
-    Activer les Options pour Développeurs sur votre appareil Android.
-    Activer le Débogage USB dans les options pour développeurs.
-    Brancher votre téléphone à votre PC via un câble USB.
-    Sélectionner le Mode MTP (Media Transfer Protocol) dans les options de connexion USB.
+1. Connect Your Android Device
 
-2. Configurer ADB
+   - Enable Developer Options on your Android device.
+   - Enable USB Debugging in Developer Options.
+   - Connect your phone to your PC via USB cable.
+   - Select MTP (Media Transfer Protocol) mode in the USB connection options.
 
-    Vérifier que votre appareil est reconnu :
+2. Configure ADB
 
-    adb devices
+   - Check that your device is recognized:
 
-    Vous devriez voir votre appareil listé avec un identifiant unique.
+     ```bash
+     adb devices
+     ```
 
-    Récupérer l'ID ADB de votre appareil pour le configurer dans le script. L'ID ressemble à ceci : 4672d93b.
+     You should see your device listed with a unique ID.
 
-3. Lancer le Serveur Appium
+   - Retrieve your device’s ADB ID to configure it in the script. The ID looks like this: `4672d93b`.
 
-    Démarrer Appium Server sur le port 4725. Vous pouvez le faire via la ligne de commande ou l'interface graphique d'Appium.
+3. Start the Appium Server
 
-4. Configurer Appium Inspector (Facultatif)
+   Start Appium Server on port 4725. You can do this via the command line or the Appium GUI.
 
-Appium Inspector n'est pas obligatoire pour exécuter les scripts, mais il peut être utile pour inspecter l'interface utilisateur.
+4. Configure Appium Inspector (Optional)
 
-    Lancer Appium Inspector.
-    Configurer les paramètres de connexion :
-        Remote Host : localhost
-        Remote Port : 4725
-        Remote Path : /wd/hub
-    Importer la Configuration JSON :
-        Copier le contenu du fichier json_for_appium.json fourni dans le projet.
-        Coller le contenu dans le champ JSON Representation d'Appium Inspector.
-    Démarrer la Session pour inspecter l'application DexScreener.
+Appium Inspector is not required to run the scripts but can help inspect the UI.
 
-Utilisation
-1. Récupérer les Derniers Tokens
+   - Launch Appium Inspector.
+   - Configure connection settings:
+     - Remote Host: localhost
+     - Remote Port: 4725
+     - Remote Path: /wd/hub
+   - Import the JSON Configuration:
+     - Copy the content from the provided `json_for_appium.json` file.
+     - Paste it into the "JSON Representation" field in Appium Inspector.
+   - Start the session to inspect the DexScreener app.
 
-Script : get_newest_tokens.py
+## Usage
 
-Ce script permet de récupérer en temps réel les derniers tokens listés sur DexScreener et de les enregistrer dans un fichier.
+### 1. Retrieve Latest Tokens
 
-Étapes :
+**Script**: `get_newest_tokens.py`
 
-    Lancer l'application DexScreener sur votre téléphone connecté.
+This script retrieves the most recent tokens listed on DexScreener in real-time and saves them to a file.
 
-    Sélectionner les filtres "New" "Newest" pour afficher les tokens les plus récents.
+**Steps**:
 
-    Exécuter le script :
+- Launch the DexScreener app on your connected phone.
+- Select the "New" and "Newest" filters to display the latest tokens.
+- Run the script:
 
-    python3 get_newest_tokens.py
+  ```bash
+  python3 get_newest_tokens.py
+  ```
 
-2. Simuler des Achats et Récupérer les Hashes
+### 2. Simulate Purchases and Retrieve Hashes
 
-Script : dexscreenerlistener.py
+**Script**: `dexscreenerlistener.py`
 
-Ce script interagit avec l'application DexScreener pour :
+This script interacts with the DexScreener app to:
 
-    Récupérer les 7 à 8 tokens les plus récents.
-    Extraire les hashes correspondants sur leurs blockchains respectives.
-    Préparer une simulation d'achat pour chaque token.
+- Retrieve the 7–8 most recent tokens.
+- Extract their hashes on their respective blockchains.
+- Prepare a simulated purchase for each token.
 
-Étapes :
+**Steps**:
 
-    Assurer que l'application DexScreener est ouverte sur votre téléphone avec les filtres "New" "Newest" sélectionnés.
+- Make sure the DexScreener app is open on your phone with "New" and "Newest" filters selected.
+- Update the ADB device ID in the `dexscreenerlistener.py` script:
 
-    Mettre à jour l'ID de l'appareil ADB dans le script dexscreenerlistener.py :
+  ```python
+  options.deviceName = 'your_adb_id'
+  ```
 
-options.deviceName = 'votre_id_adb'
+- Run the script:
 
-Lancer le script :
+  ```bash
+  python3 dexscreenerlistener.py
+  ```
 
-    python3 dexscreenerlistener.py
+**Results**:
 
-Résultats :
+- Token information is saved to `pair_hash.json`.
+- Simulated purchases are saved to `simulated_purchases.json`.
 
-    Les informations des tokens sont enregistrées dans pair_hash.json.
-    Les simulations d'achat sont enregistrées dans simulated_purchases.json.
+### 3. Update Token Prices
 
-3. Mettre à Jour les Prix des Tokens
+**Script**: `get_updated_token_price.py`
 
-Script : get_updated_token_price.py
+This script does not interact with the phone. It uses the DexScreener API to:
 
-Ce script n'interagit pas avec le téléphone. Il utilise l'API DexScreener pour :
+- Retrieve updated token information.
+- Compare current prices with simulated purchase prices.
+- Calculate potential gains or losses.
+- Display additional data such as liquidity and market cap.
 
-    Récupérer les informations mises à jour des tokens.
-    Comparer les prix actuels avec les prix d'achat simulés.
-    Calculer les gains ou les pertes potentiels.
-    Afficher des informations supplémentaires telles que la liquidité et la capitalisation boursière.
+**Steps**:
 
-Étapes :
+- Ensure `simulated_purchases.json` exists and contains data generated by `dexscreenerlistener.py`.
 
-    Vérifier que simulated_purchases.json existe et contient les données générées par dexscreenerlistener.py.
+- Run the script:
 
-    Exécuter le script :
+  ```bash
+  python3 get_updated_token_price.py
+  ```
 
-    python3 get_updated_token_price.py
+**Results**:
 
-Résultats :
+- Detailed results are displayed in the terminal.
+- Data is saved to `purchase_results.json`.
 
-    Les résultats détaillés sont affichés dans le terminal.
-    Les informations sont enregistrées dans purchase_results.json.
+## Future Improvements
 
-Améliorations Futures:
-
-    Ajouter une stratégie d'achat efficaces en se basant sur la liquidité, marketcap, transactions effectuées...
-
-    Refactorisation du Code : Séparer dexscreenerlistener.py en plusieurs fichiers pour améliorer la lisibilité et la maintenance.
-
-    Optimisation des Performances :
-        Réduire les Temps d'Attente : Ajuster les temps de sleep pour accélérer l'exécution.
-        Améliorer l'Algorithme : Optimiser la manière dont les informations des tokens sont récupérées pour une meilleure efficacité.
+- Add effective purchase strategies based on liquidity, market cap, transaction activity, etc.
+- Code Refactoring: Split `dexscreenerlistener.py` into multiple files to improve readability and maintainability.
+- Performance Optimization:
+  - Reduce Sleep Time: Adjust wait times to speed up execution.
+  - Improve Algorithm: Optimize how token information is retrieved for better efficiency.
